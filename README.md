@@ -17,7 +17,8 @@ A Minecraft 1.21.1 + NeoForge mod project intended to search configuration optio
 - `ShaderOptionScanner.scanZip(ZipFile)` scans `.vsh`, `.fsh`, `.gsh`, `.tsh`, and `.glsl` files.
 - Candidate options are deduplicated by option name.
 - Search can locate an option by its identifier, human-readable comment, or shader source path.
-- `ShaderOptionSearch.filter(candidates, query)` performs case-insensitive matching against option names, descriptions, and source-file paths. An empty or whitespace-only query returns all candidates.
+- `ShaderOptionSearch.filter(candidates, query)` performs case-insensitive, multi-term matching against option names, descriptions, and source-file paths. Every whitespace-separated term must match somewhere; an empty query returns all candidates.
+- `ShaderOptionSearch.filterByDefaultState(candidates, enabledByDefault)` filters candidates by whether the source define is enabled or commented out by default.
 - JUnit tests cover line parsing, search filtering, and scanning shader sources from a ZIP archive.
 - GitHub Actions runs `gradle test` and `gradle build`, then uploads the built JAR as a development artifact if both steps succeed.
 
@@ -39,10 +40,10 @@ This is a candidate scanner, **not** a complete Iris/Oculus option parser. Shade
 
 ## Planned next steps
 
-1. Confirm the automated test/build result and fix any failures.
+1. Obtain a confirmed GitHub Actions run and fix any build/test failures.
 2. Select and declare a compatible NeOculus dependency.
 3. Add a client-side bridge to the active pack's parsed options.
-4. Add a client-side search screen.
+4. Add a client-side search screen with query and default-state controls.
 5. Add a Gradle wrapper and verify a clean build.
 
 ## License
