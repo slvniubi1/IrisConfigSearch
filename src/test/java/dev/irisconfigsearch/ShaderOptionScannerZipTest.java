@@ -12,6 +12,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ShaderOptionScannerZipTest {
     @Test
@@ -58,6 +59,16 @@ class ShaderOptionScannerZipTest {
             }
         } finally {
             Files.deleteIfExists(archive);
+        }
+    }
+
+    @Test
+    void rejectsPathThatIsNotADirectory() throws IOException {
+        Path file = Files.createTempFile("not-a-shader-pack", ".txt");
+        try {
+            assertThrows(IOException.class, () -> ShaderOptionScanner.scanDirectory(file));
+        } finally {
+            Files.deleteIfExists(file);
         }
     }
 
