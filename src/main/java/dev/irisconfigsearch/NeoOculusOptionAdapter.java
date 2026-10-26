@@ -1,6 +1,5 @@
 package dev.irisconfigsearch;
 
-import net.irisshaders.iris.Iris;
 import net.irisshaders.iris.shaderpack.ShaderPack;
 import net.irisshaders.iris.shaderpack.option.MergedBooleanOption;
 import net.irisshaders.iris.shaderpack.option.MergedStringOption;
@@ -13,11 +12,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Adapter for NeOculus 1.21.1's shader option model.
+ * Adapter for the NeOculus 1.21.1 shader option model.
  *
- * This adapter deliberately accepts the active ShaderPack as an argument rather
- * than reaching into loader internals to discover the current pack. A client
- * integration can supply the pack once a stable accessor/event is selected.
+ * The caller supplies the active ShaderPack. Discovering the active pack is
+ * intentionally kept separate until the loader accessor is verified.
  */
 public final class NeoOculusOptionAdapter {
     private NeoOculusOptionAdapter() {
@@ -33,8 +31,8 @@ public final class NeoOculusOptionAdapter {
     }
 
     /**
-     * Converts the active pack's parsed boolean and string options into entries.
-     * Returns an empty list if no shader pack is supplied.
+     * Converts parsed boolean and string options into simple searchable entries.
+     * Null packs produce an empty list.
      */
     public static List<Entry> readOptions(ShaderPack pack) {
         if (pack == null) {
@@ -47,20 +45,22 @@ public final class NeoOculusOptionAdapter {
 
         for (MergedBooleanOption merged : optionSet.getBooleanOptions().values()) {
             var option = merged.getOption();
+            boolean defaultValue = option.getDefaultValue();
             entries.add(new Entry(
                     option.getName(),
-                    option.getComment(),
-                    String.valueOf(values.getBooleanValue(option.getName())),
+                    option.getComment().orElse(""),
+                    String.valueOf(values.getBooleanValue(option.getName()).orElse(defaultValue)),
                     "boolean"
             ));
         }
 
         for (MergedStringOption merged : optionSet.getStringOptions().values()) {
             var option = merged.getOption();
+            String defaultValue = option.getDefaultValue();
             entries.add(new Entry(
                     option.getName(),
-                    option.getComment(),
-                    values.getStringValue(option.getName()),
+                    option.getComment().orElse(""),
+                    values.getStringValue(option.getName()).orElse(defaultValue),
                     "string"
             ));
         }
