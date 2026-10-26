@@ -11,16 +11,18 @@ import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
-/** First client UI for searching options from the currently active NeOculus shader pack. */
+/** Client UI for searching options from the currently active NeOculus shader pack. */
 public final class ShaderOptionSearchScreen extends Screen {
     private static final int ROW_HEIGHT = 32;
     private static final String[] TYPE_FILTERS = {"all", "boolean", "string", "define"};
+    private static final Boolean[] DEFAULT_FILTERS = {null, true, false};
+
     private ShaderOptionSearchSession session;
     private EditBox searchBox;
-    private Button typeFilterButton;
     private String status = "";
     private int scrollOffset;
     private int typeFilterIndex;
+    private int defaultFilterIndex;
 
     public ShaderOptionSearchScreen() {
         super(Component.translatable("screen.irisconfigsearch.title"));
@@ -36,7 +38,7 @@ public final class ShaderOptionSearchScreen extends Screen {
     @Override
     protected void init() {
         int left = this.width / 2 - 150;
-        searchBox = new EditBox(this.font, left, 36, 140, 20,
+        searchBox = new EditBox(this.font, left, 36, 104, 20,
                 Component.translatable("screen.irisconfigsearch.search"));
         searchBox.setMaxLength(256);
         searchBox.setValue(session.query());
@@ -46,18 +48,24 @@ public final class ShaderOptionSearchScreen extends Screen {
         });
         addRenderableWidget(searchBox);
 
-        typeFilterButton = Button.builder(typeFilterLabel(), button -> {
+        addRenderableWidget(Button.builder(typeFilterLabel(), button -> {
             typeFilterIndex = (typeFilterIndex + 1) % TYPE_FILTERS.length;
             session.setTypeFilter(TYPE_FILTERS[typeFilterIndex]);
             button.setMessage(typeFilterLabel());
             scrollOffset = 0;
-        }).bounds(left + 145, 36, 78, 20).build();
-        addRenderableWidget(typeFilterButton);
+        }).bounds(left + 106, 36, 74, 20).build());
+
+        addRenderableWidget(Button.builder(defaultFilterLabel(), button -> {
+            defaultFilterIndex = (defaultFilterIndex + 1) % DEFAULT_FILTERS.length;
+            session.setEnabledByDefault(DEFAULT_FILTERS[defaultFilterIndex]);
+            button.setMessage(defaultFilterLabel());
+            scrollOffset = 0;
+        }).bounds(left + 182, 36, 72, 20).build());
 
         addRenderableWidget(Button.builder(Component.translatable("screen.irisconfigsearch.refresh"), button -> {
             refreshOptions();
             scrollOffset = 0;
-        }).bounds(left + 228, 36, 72, 20).build());
+        }).bounds(left + 256, 36, 44, 20).build());
 
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
                 .bounds(this.width / 2 - 50, this.height - 30, 100, 20).build());
@@ -66,6 +74,13 @@ public final class ShaderOptionSearchScreen extends Screen {
     private Component typeFilterLabel() {
         return Component.translatable("screen.irisconfigsearch.filter",
                 Component.translatable("screen.irisconfigsearch.filter." + TYPE_FILTERS[typeFilterIndex]));
+    }
+
+    private Component defaultFilterLabel() {
+        String key = defaultFilterIndex == 0 ? "all"
+                : defaultFilterIndex == 1 ? "enabled" : "disabled";
+        return Component.translatable("screen.irisconfigsearch.default_filter",
+                Component.translatable("screen.irisconfigsearch.default_filter." + key));
     }
 
     private void refreshOptions() {
