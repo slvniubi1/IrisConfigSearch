@@ -1,0 +1,48 @@
+package dev.irisconfigsearch;
+
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class ShaderOptionScannerZipTest {
+    @Test
+    void scansShaderSourcesAndKeepsFirstOccurrenceOfDuplicateOption() throws IOException {
+        Path archive = Files.createTempFile("shader-pack", ".zip");
+        try {
+            try (ZipOutputStream output = new ZipOutputStream(Files.newOutputStream(archive))) {
+                addEntry(output, "shaders/first.fsh",
+                        "#define BLOOM // First description\n// #define SHADOWS\n");
+                addEntry(output, "shaders/second.GLSL",
+                        "#define BLOOM // Duplicate description\n#define WATER_REFLECTIONS\n");
+                addEntry(output, "readme.txt", "#define SHOULD_NOT_APPEAR\n");
+            }
+
+            try (ZipFile zip = new ZipFile(archive.toFile())) {
+                List<ShaderOptionScanner.Candidate> options = ShaderOptionScanner.scanZip(zip);
+
+                assertEquals(List.of("BLOOM", "SHADOWS", "WATER_REFLECTIONS"),
+                        options.stream().map(ShaderOptionScanner.Candidate::name).toList());
+                assertEquals("First description", options.get(0).description());
+                assertEquals("shaders/first.fsh", options.get(0).sourceFile());
+                assertEquals(false, options.get(1).enabledByDefault());
+            }
+        } finally {
+            Files.deleteIfExists(archive);
+        }
+    }
+
+    private static void addEntry(ZipOutputStream output, String name, String content) throws IOException {
+        output.putNextEntry(new ZipEntry(name));
+        output.write(content.getBytes(StandardCharsets.UTF_8));
+        output.closeEntry();
+    }
+}
