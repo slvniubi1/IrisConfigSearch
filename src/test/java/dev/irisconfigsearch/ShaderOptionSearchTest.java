@@ -33,6 +33,12 @@ class ShaderOptionSearchTest {
     }
 
     @Test
+    void matchesSourceFilePathWithoutCaseSensitivity() {
+        assertEquals(List.of(OPTIONS.get(0)), ShaderOptionSearch.filter(OPTIONS, "COMMON.GLSL"));
+        assertEquals(List.of(OPTIONS.get(2)), ShaderOptionSearch.filter(OPTIONS, "water.glsl"));
+    }
+
+    @Test
     void noMatchReturnsEmptyList() {
         assertEquals(List.of(), ShaderOptionSearch.filter(OPTIONS, "nonexistent"));
     }
