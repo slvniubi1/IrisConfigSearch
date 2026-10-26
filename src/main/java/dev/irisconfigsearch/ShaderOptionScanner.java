@@ -25,7 +25,7 @@ import java.util.zip.ZipFile;
  */
 public final class ShaderOptionScanner {
     private static final Pattern DEFINE = Pattern.compile(
-            "^\\s*(//\\s*)?#\\s*define\\s+([A-Za-z_][A-Za-z0-9_]*)\\b(?:\\s*//\\s*(.*))?$");
+            "^\\s*(//\\s*)?#\\s*define\\s+([A-Za-z_][A-Za-z0-9_]*)\\b(?:\\s+[^/\\s].*?)?(?:\\s*//\\s*(.*))?$");
 
     private ShaderOptionScanner() {
     }
