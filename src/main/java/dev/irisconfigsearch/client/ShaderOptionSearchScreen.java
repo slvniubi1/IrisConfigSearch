@@ -88,7 +88,12 @@ public final class ShaderOptionSearchScreen extends Screen {
                 ShaderOptionEntry option = results.get(i + scrollOffset);
                 int y = top + i * ROW_HEIGHT;
                 String current = option.currentValue().map(value -> " = " + value).orElse("");
-                String line = font.plainSubstrByWidth(option.name() + current, width - 24);
+                String typeLabel = Component.translatable("screen.irisconfigsearch.type", option.type()).getString();
+                String defaultLabel = option.defaultValue()
+                        .map(value -> Component.translatable("screen.irisconfigsearch.default", value).getString())
+                        .orElse("");
+                String line = font.plainSubstrByWidth(
+                        option.name() + " [" + typeLabel + "]" + current + defaultLabel, width - 24);
                 graphics.drawString(font, line, 12, y, 0xE0E0E0, false);
                 if (!option.description().isBlank()) {
                     graphics.drawString(font, font.plainSubstrByWidth(option.description(), width - 24),
