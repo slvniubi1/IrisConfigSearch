@@ -17,15 +17,22 @@ public final class ShaderOptionSearch {
 
     public static List<ShaderOptionScanner.Candidate> filter(
             List<ShaderOptionScanner.Candidate> candidates, String query) {
+        return filter(candidates, query, null);
+    }
+
+    /**
+     * Searches by text and optionally restricts results to a default enabled state.
+     * A null state includes both enabled and disabled candidates.
+     */
+    public static List<ShaderOptionScanner.Candidate> filter(
+            List<ShaderOptionScanner.Candidate> candidates, String query, Boolean enabledByDefault) {
         Objects.requireNonNull(candidates, "candidates");
 
         String normalizedQuery = query == null ? "" : query.strip().toLowerCase(Locale.ROOT);
-        if (normalizedQuery.isEmpty()) {
-            return List.copyOf(candidates);
-        }
-
-        String[] terms = normalizedQuery.split("\\s+");
+        String[] terms = normalizedQuery.isEmpty() ? new String[0] : normalizedQuery.split("\\s+");
         return candidates.stream()
+                .filter(candidate -> enabledByDefault == null
+                        || candidate.enabledByDefault() == enabledByDefault)
                 .filter(candidate -> matchesAllTerms(candidate, terms))
                 .toList();
     }
