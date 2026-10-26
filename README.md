@@ -4,7 +4,7 @@ A Minecraft 1.21.1 + NeoForge mod project intended to search configuration optio
 
 ## Status
 
-**Early development — not yet feature-complete or build-verified.** The initial project scaffold and a loader-independent shader-source scanner are committed. The scanner finds candidate `#define` entries in shader source files inside a shader-pack ZIP, including commented-out defines, and records a trailing `//` description when present.
+**Early development — not yet feature-complete or build-verified.** The project currently has a loader-independent shader-source candidate scanner and a pure-Java search filter.
 
 ## Requirements
 
@@ -15,18 +15,22 @@ A Minecraft 1.21.1 + NeoForge mod project intended to search configuration optio
 ## Current implementation
 
 - `ShaderOptionScanner.scanZip(ZipFile)` scans `.vsh`, `.fsh`, `.gsh`, `.tsh`, and `.glsl` files.
-- Results are deduplicated by option name.
-- This is a candidate scanner, **not** a complete Iris/Oculus option parser. It is not yet connected to the active shader pack or a search screen.
+- Candidate options are deduplicated by option name.
+- `ShaderOptionSearch.filter(candidates, query)` performs case-insensitive matching against option names and descriptions. An empty query returns all candidates.
+- The scanner and filter are not yet connected to the active shader pack or a Minecraft search screen.
+
+This is a candidate scanner, **not** a complete Iris/Oculus option parser. Shader packs may expose settings through metadata such as `shaders.properties`, so the scanner alone cannot guarantee that every result is a real user-facing setting.
 
 ## Compatibility note
 
-Iris is primarily associated with Fabric-based setups, while NeoForge shader support commonly uses Oculus or compatible forks. The integration must target the actual loader and its exposed configuration API. This project does not yet claim compatibility with Iris or Oculus.
+Iris is primarily associated with Fabric-based setups, while NeoForge shader support commonly uses Oculus or compatible forks. Integration must target the actual loader version and its exposed configuration API. This project does not yet claim compatibility with Iris or Oculus.
 
 ## Planned next steps
 
-1. Add search filtering and a client-side screen.
-2. Integrate with the chosen NeoForge shader loader and active pack.
-3. Add tests and a Gradle wrapper, then verify a build.
+1. Add automated tests for scanning and filtering.
+2. Identify and integrate with a specific NeoForge shader loader and active-pack API.
+3. Add a client-side search screen.
+4. Add a Gradle wrapper and verify the build.
 
 ## License
 
