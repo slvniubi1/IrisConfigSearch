@@ -1,0 +1,12 @@
+{
+  "key.categories.irisconfigsearch": "Iris Config Search",
+  "key.irisconfigsearch.open": "Open shader option search",
+  "screen.irisconfigsearch.title": "Shader Option Search",
+  "screen.irisconfigsearch.search": "Search options",
+  "screen.irisconfigsearch.refresh": "Refresh",
+  "screen.irisconfigsearch.no_options": "No active shader-pack options found.",
+  "screen.irisconfigsearch.integration_error": "Could not read options from this NeOculus version.",
+  "screen.irisconfigsearch.no_matches": "No matching options.",
+  "screen.irisconfigsearch.count": "%s options",
+  "screen.irisconfigsearch.scroll_hint": "Scroll to browse"
+}
