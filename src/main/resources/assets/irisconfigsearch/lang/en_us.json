@@ -8,5 +8,7 @@
   "screen.irisconfigsearch.integration_error": "Could not read options from this NeOculus version.",
   "screen.irisconfigsearch.no_matches": "No matching options.",
   "screen.irisconfigsearch.count": "%s options",
-  "screen.irisconfigsearch.scroll_hint": "Scroll to browse"
+  "screen.irisconfigsearch.scroll_hint": "Scroll to browse",
+  "screen.irisconfigsearch.type": "%s",
+  "screen.irisconfigsearch.default": "  default: %s"
 }
