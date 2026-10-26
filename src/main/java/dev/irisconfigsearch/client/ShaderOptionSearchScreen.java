@@ -13,7 +13,7 @@ import java.util.List;
 
 /** First client UI for searching options from the currently active NeOculus shader pack. */
 public final class ShaderOptionSearchScreen extends Screen {
-    private static final int ROW_HEIGHT = 22;
+    private static final int ROW_HEIGHT = 32;
     private ShaderOptionSearchSession session;
     private EditBox searchBox;
     private String status = "";
@@ -87,17 +87,26 @@ public final class ShaderOptionSearchScreen extends Screen {
             for (int i = 0; i < visibleRows && i + scrollOffset < results.size(); i++) {
                 ShaderOptionEntry option = results.get(i + scrollOffset);
                 int y = top + i * ROW_HEIGHT;
-                String current = option.currentValue().map(value -> " = " + value).orElse("");
                 String typeLabel = Component.translatable("screen.irisconfigsearch.type", option.type()).getString();
-                String defaultLabel = option.defaultValue()
-                        .map(value -> Component.translatable("screen.irisconfigsearch.default", value).getString())
-                        .orElse("");
-                String line = font.plainSubstrByWidth(
-                        option.name() + " [" + typeLabel + "]" + current + defaultLabel, width - 24);
-                graphics.drawString(font, line, 12, y, 0xE0E0E0, false);
+                String heading = font.plainSubstrByWidth(option.name() + " [" + typeLabel + "]", width - 24);
+                graphics.drawString(font, heading, 12, y, 0xE0E0E0, false);
+
                 if (!option.description().isBlank()) {
                     graphics.drawString(font, font.plainSubstrByWidth(option.description(), width - 24),
                             12, y + 10, 0x909090, false);
+                }
+
+                String currentLabel = option.currentValue()
+                        .map(value -> Component.translatable("screen.irisconfigsearch.current", value).getString())
+                        .orElse("");
+                String defaultLabel = option.defaultValue()
+                        .map(value -> Component.translatable("screen.irisconfigsearch.default", value).getString())
+                        .orElse("");
+                String values = currentLabel.isEmpty() ? defaultLabel
+                        : defaultLabel.isEmpty() ? currentLabel : currentLabel + "  |  " + defaultLabel;
+                if (!values.isEmpty()) {
+                    graphics.drawString(font, font.plainSubstrByWidth(values, width - 24),
+                            12, y + 20, 0xA0C8FF, false);
                 }
             }
         }
