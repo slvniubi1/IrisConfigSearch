@@ -19,6 +19,7 @@ A Minecraft 1.21.1 + NeoForge mod project intended to search configuration optio
 
 - `ShaderOptionEntry` is a UI-independent view model that carries source metadata and an optional runtime value. Source-only entries deliberately leave the current value unavailable instead of guessing it.
 - `ShaderOptionCatalog.build(candidates, currentValues)` creates a case-insensitively sorted list for a future UI and attaches runtime values when available.
+- `NeOculusOptionSource` is an optional reflective bridge to NeOculus 1.21.1's parsed boolean and string options. It returns an empty snapshot when NeOculus or an active shader pack is absent, and avoids a compile-time dependency on NeOculus.
 - `ShaderOptionSearchSession` stores the query and default-state filter, exposes filtered results, and can refresh its option snapshot when the active pack changes.
 - `ShaderOptionSearch.filterEntries(entries, query, enabledByDefault)` searches unified entries, including available current values, and optionally filters by default state.
 - Search can locate an option by its identifier, human-readable comment, or shader source path.
@@ -35,21 +36,20 @@ A Minecraft 1.21.1 + NeoForge mod project intended to search configuration optio
 
 Artifacts are retained for 14 days. If no successful run or artifact is shown, a build has not been confirmed.
 
-**Important:** a compiled JAR is not proof that the intended feature works. The active shader pack is not yet connected to the scanner, and the in-game search screen is not implemented. Do not treat development artifacts as a finished release.
+**Important:** a compiled JAR is not proof that the intended feature works. The reflective bridge can read parsed options from an active NeOculus pack, but it is not yet wired into the mod entry point or an in-game search screen. Do not treat development artifacts as a finished release.
 
 ## NeOculus integration research
 
-The NeOculus 1.21.1 source exposes parsed shader options through `ShaderPack.getShaderPackOptions()`, followed by `ShaderPackOptions.getOptionSet()` and `getOptionValues()`. Boolean and string options are represented separately. These are promising integration points, but this project does not yet declare or verify a compatible NeOculus dependency, discover the active pack, or access its API at runtime.
+The NeOculus 1.21.1 source exposes parsed shader options through `ShaderPack.getShaderPackOptions()`, followed by `ShaderPackOptions.getOptionSet()` and `getOptionValues()`. Boolean and string options are represented separately. The `NeOculusOptionSource` bridge now attempts to read the active pack through `Iris.getCurrentPack()` and the public parsed-option APIs. Reflection avoids a compile-time dependency, but runtime compatibility still needs testing against an installed NeOculus build.
 
 This is a candidate scanner, **not** a complete Iris/Oculus option parser. Shader packs may expose settings through metadata such as `shaders.properties`; the loader's parsed option model is preferable for real user-facing settings.
 
 ## Planned next steps
 
 1. Obtain a confirmed GitHub Actions run and fix any build/test failures.
-2. Select and declare a compatible NeOculus dependency.
-3. Add a client-side bridge to the active pack's parsed options.
-4. Add a client-side search screen with query and default-state controls.
-5. Add a Gradle wrapper and verify a clean build.
+2. Verify the reflective bridge against an installed NeOculus 1.21.1 build.
+3. Wire the option source into a client-side search screen with query and default-state controls.
+4. Add a Gradle wrapper and verify a clean build.
 
 ## License
 
