@@ -1,0 +1,12 @@
+{
+  "key.categories.irisconfigsearch": "Iris 配置搜索",
+  "key.irisconfigsearch.open": "打开着色器选项搜索",
+  "screen.irisconfigsearch.title": "着色器选项搜索",
+  "screen.irisconfigsearch.search": "搜索选项",
+  "screen.irisconfigsearch.refresh": "刷新",
+  "screen.irisconfigsearch.no_options": "未找到当前着色器包的选项。",
+  "screen.irisconfigsearch.integration_error": "无法读取此版本 NeOculus 的选项。",
+  "screen.irisconfigsearch.no_matches": "没有匹配的选项。",
+  "screen.irisconfigsearch.count": "%s 个选项",
+  "screen.irisconfigsearch.scroll_hint": "滚动浏览"
+}
