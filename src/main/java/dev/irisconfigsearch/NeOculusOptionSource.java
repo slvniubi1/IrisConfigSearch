@@ -67,7 +67,8 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
             boolean currentValue = (boolean) invoke(currentEnum.getClass(), currentEnum, "orElse", defaultValue);
 
             entries.add(new ShaderOptionEntry(name, description, defaultValue,
-                    "NeOculus parsed options", Optional.of(Boolean.toString(currentValue))));
+                    "NeOculus parsed options", Optional.of(Boolean.toString(currentValue)),
+                    "boolean", Optional.of(Boolean.toString(defaultValue))));
         }
     }
 
@@ -82,7 +83,8 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
             Object rawCurrent = invoke(optionValues.getClass(), optionValues, "getStringValue", name);
             String currentValue = optionalString(rawCurrent);
             entries.add(new ShaderOptionEntry(name, description, true,
-                    "NeOculus parsed options", Optional.of(currentValue == null ? defaultValue : currentValue)));
+                    "NeOculus parsed options", Optional.of(currentValue == null ? defaultValue : currentValue),
+                    "string", Optional.ofNullable(defaultValue)));
         }
     }
 
