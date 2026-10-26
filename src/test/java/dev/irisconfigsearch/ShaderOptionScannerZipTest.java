@@ -15,6 +15,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ShaderOptionScannerZipTest {
     @Test
+    void scansDefinesWithNumericValuesFromShaderArchive() throws IOException {
+        Path archive = Files.createTempFile("shader-pack-values", ".zip");
+        try {
+            try (ZipOutputStream output = new ZipOutputStream(Files.newOutputStream(archive))) {
+                addEntry(output, "shaders/shadows.glsl",
+                        "#define SHADOW_QUALITY 3 // Shadow quality level\n#define BLOOM 1\n");
+            }
+
+            try (ZipFile zip = new ZipFile(archive.toFile())) {
+                List<ShaderOptionScanner.Candidate> options = ShaderOptionScanner.scanZip(zip);
+
+                assertEquals(List.of("SHADOW_QUALITY", "BLOOM"),
+                        options.stream().map(ShaderOptionScanner.Candidate::name).toList());
+                assertEquals("Shadow quality level", options.get(0).description());
+            }
+        } finally {
+            Files.deleteIfExists(archive);
+        }
+    }
+
+    @Test
     void scansShaderSourcesAndKeepsFirstOccurrenceOfDuplicateOption() throws IOException {
         Path archive = Files.createTempFile("shader-pack", ".zip");
         try {
