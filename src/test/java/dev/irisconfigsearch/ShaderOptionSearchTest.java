@@ -39,6 +39,17 @@ class ShaderOptionSearchTest {
     }
 
     @Test
+    void matchesMultipleTermsAcrossDifferentFields() {
+        assertEquals(List.of(OPTIONS.get(0)), ShaderOptionSearch.filter(OPTIONS, "shadow common"));
+        assertEquals(List.of(OPTIONS.get(2)), ShaderOptionSearch.filter(OPTIONS, "water reflections"));
+    }
+
+    @Test
+    void allTermsMustMatch() {
+        assertEquals(List.of(), ShaderOptionSearch.filter(OPTIONS, "shadow bloom"));
+    }
+
+    @Test
     void noMatchReturnsEmptyList() {
         assertEquals(List.of(), ShaderOptionSearch.filter(OPTIONS, "nonexistent"));
     }
