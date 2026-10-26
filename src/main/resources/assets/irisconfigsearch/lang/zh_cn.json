@@ -10,5 +10,6 @@
   "screen.irisconfigsearch.count": "%s 个选项",
   "screen.irisconfigsearch.scroll_hint": "滚动浏览",
   "screen.irisconfigsearch.type": "%s",
-  "screen.irisconfigsearch.default": "  默认值：%s"
+  "screen.irisconfigsearch.default": "默认值：%s",
+  "screen.irisconfigsearch.current": "当前值：%s"
 }
