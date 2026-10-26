@@ -83,7 +83,7 @@ public final class ShaderOptionScanner {
                     .filter(file -> isShaderSource(file.getFileName().toString()))
                     .sorted()
                     .toList()) {
-                String sourceFile = root.relativize(path).toString().replace('\\\\', '/');
+                String sourceFile = root.relativize(path).toString().replace('\\', '/');
                 try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
                     String line;
                     while ((line = reader.readLine()) != null) {
