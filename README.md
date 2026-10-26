@@ -10,7 +10,7 @@ A Minecraft 1.21.1 + NeoForge mod project for searching options exposed by the c
 
 ## Current implementation
 
-- Press **K** (changeable in Controls) to open the client-side shader option search screen.
+- Press **K** (changeable in Controls) to open the client-side shader option search screen. English and Simplified Chinese (`zh_cn`) localization are included.
 - Search is case-insensitive and supports multiple terms across option names, descriptions, source files, and available current values.
 - The screen includes a refresh button and mouse-wheel scrolling.
 - `NeOculusOptionSource` reflectively reads parsed boolean and string options from the active NeOculus shader pack without a compile-time dependency.
