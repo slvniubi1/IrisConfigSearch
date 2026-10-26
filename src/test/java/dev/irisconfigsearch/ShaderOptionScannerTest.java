@@ -66,5 +66,6 @@ class ShaderOptionScannerTest {
     void ignoresNonDefineLines() {
         assertTrue(ShaderOptionScanner.parseLine("// just a comment", "shaders/a.glsl").isEmpty());
         assertTrue(ShaderOptionScanner.parseLine("uniform float brightness;", "shaders/a.fsh").isEmpty());
+        assertTrue(ShaderOptionScanner.parseLine("#define saturate(x) clamp(x, 0.0, 1.0)", "shaders/a.glsl").isEmpty());
     }
 }
