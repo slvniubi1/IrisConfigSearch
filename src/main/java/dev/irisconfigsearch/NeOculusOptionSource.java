@@ -100,17 +100,49 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
         return value;
     }
 
+    private static Class<?> wrapPrimitive(Class<?> type) {
+        if (!type.isPrimitive()) {
+            return type;
+        }
+        if (type == boolean.class) return Boolean.class;
+        if (type == byte.class) return Byte.class;
+        if (type == short.class) return Short.class;
+        if (type == int.class) return Integer.class;
+        if (type == long.class) return Long.class;
+        if (type == float.class) return Float.class;
+        if (type == double.class) return Double.class;
+        if (type == char.class) return Character.class;
+        return type;
+    }
+
     private static Object invoke(Class<?> owner, Object target, String name, Object... arguments)
             throws ReflectiveOperationException {
         Method match = null;
         for (Method method : owner.getMethods()) {
-            if (method.getName().equals(name) && method.getParameterCount() == arguments.length) {
+            if (!method.getName().equals(name) || method.getParameterCount() != arguments.length) {
+                continue;
+            }
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            boolean compatible = true;
+            for (int i = 0; i < parameterTypes.length; i++) {
+                if (arguments[i] == null) {
+                    if (parameterTypes[i].isPrimitive()) {
+                        compatible = false;
+                        break;
+                    }
+                } else if (!wrapPrimitive(parameterTypes[i]).isInstance(arguments[i])) {
+                    compatible = false;
+                    break;
+                }
+            }
+            if (compatible) {
                 match = method;
                 break;
             }
         }
         if (match == null) {
-            throw new NoSuchMethodException(owner.getName() + "." + name);
+            throw new NoSuchMethodException(owner.getName() + "." + name
+                    + " with " + arguments.length + " compatible argument(s)");
         }
         try {
             return match.invoke(target, arguments);
