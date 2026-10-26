@@ -13,10 +13,11 @@ import java.util.List;
 
 /** First client UI for searching options from the currently active NeOculus shader pack. */
 public final class ShaderOptionSearchScreen extends Screen {
-    private static final int ROW_HEIGHT = 14;
+    private static final int ROW_HEIGHT = 22;
     private ShaderOptionSearchSession session;
     private EditBox searchBox;
     private String status = "";
+
     private int scrollOffset;
 
     public ShaderOptionSearchScreen() {
@@ -53,12 +54,11 @@ public final class ShaderOptionSearchScreen extends Screen {
     }
 
     private void refreshOptions() {
+        status = "";
         try {
             session.refresh();
-            if (status.isEmpty()) {
-                status = session.results().isEmpty()
-                        ? Component.translatable("screen.irisconfigsearch.no_options").getString()
-                        : "";
+            if (session.results().isEmpty()) {
+                status = Component.translatable("screen.irisconfigsearch.no_options").getString();
             }
         } catch (RuntimeException exception) {
             status = Component.translatable("screen.irisconfigsearch.integration_error").getString();
@@ -92,7 +92,7 @@ public final class ShaderOptionSearchScreen extends Screen {
                 graphics.drawString(font, line, 12, y, 0xE0E0E0, false);
                 if (!option.description().isBlank()) {
                     graphics.drawString(font, font.plainSubstrByWidth(option.description(), width - 24),
-                            12, y + 9, 0x909090, false);
+                            12, y + 10, 0x909090, false);
                 }
             }
         }
