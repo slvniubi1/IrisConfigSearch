@@ -16,7 +16,8 @@ A Minecraft 1.21.1 + NeoForge mod project intended to search configuration optio
 
 - `ShaderOptionScanner.scanZip(ZipFile)` scans `.vsh`, `.fsh`, `.gsh`, `.tsh`, and `.glsl` files.
 - Candidate options are deduplicated by option name.
-- `ShaderOptionSearch.filter(candidates, query)` performs case-insensitive matching against option names and descriptions. An empty query returns all candidates.
+- Search can locate an option by its identifier, human-readable comment, or shader source path.
+- `ShaderOptionSearch.filter(candidates, query)` performs case-insensitive matching against option names, descriptions, and source-file paths. An empty or whitespace-only query returns all candidates.
 - JUnit tests cover line parsing, search filtering, and scanning shader sources from a ZIP archive.
 - GitHub Actions runs `gradle test` and `gradle build`, then uploads the built JAR as a development artifact if both steps succeed.
 
