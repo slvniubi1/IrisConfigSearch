@@ -63,6 +63,29 @@ class ShaderOptionScannerZipTest {
     }
 
     @Test
+    void directoryScanDeduplicatesNamesInSortedPathOrder() throws IOException {
+        Path root = Files.createTempDirectory("shader-pack-duplicates");
+        try {
+            Path shaders = Files.createDirectories(root.resolve("shaders"));
+            Files.writeString(shaders.resolve("a.fsh"), "#define QUALITY // First file\n");
+            Files.writeString(shaders.resolve("b.fsh"), "#define QUALITY // Second file\n#define WATER\n");
+
+            List<ShaderOptionScanner.Candidate> options = ShaderOptionScanner.scanDirectory(root);
+
+            assertEquals(List.of("QUALITY", "WATER"),
+                    options.stream().map(ShaderOptionScanner.Candidate::name).toList());
+            assertEquals("First file", options.get(0).description());
+            assertEquals("shaders/a.fsh", options.get(0).sourceFile());
+        } finally {
+            try (var paths = Files.walk(root)) {
+                for (Path path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                    Files.deleteIfExists(path);
+                }
+            }
+        }
+    }
+
+    @Test
     void rejectsPathThatIsNotADirectory() throws IOException {
         Path file = Files.createTempFile("not-a-shader-pack", ".txt");
         try {
