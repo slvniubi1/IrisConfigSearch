@@ -4,7 +4,7 @@ A Minecraft 1.21.1 + NeoForge mod project intended to search configuration optio
 
 ## Status
 
-**Early development — not yet feature-complete or build-verified.** The project currently has a loader-independent shader-source candidate scanner, a pure-Java search filter, and JUnit tests for both.
+**Early development — not yet feature-complete or build-verified.** The project currently has a loader-independent shader-source candidate scanner, a pure-Java search filter, JUnit tests, and a GitHub Actions workflow that attempts tests and a build.
 
 ## Requirements
 
@@ -17,21 +17,24 @@ A Minecraft 1.21.1 + NeoForge mod project intended to search configuration optio
 - `ShaderOptionScanner.scanZip(ZipFile)` scans `.vsh`, `.fsh`, `.gsh`, `.tsh`, and `.glsl` files.
 - Candidate options are deduplicated by option name.
 - `ShaderOptionSearch.filter(candidates, query)` performs case-insensitive matching against option names and descriptions. An empty query returns all candidates.
-- Unit tests cover define parsing, commented-out defines, descriptions, ignored lines, and search filtering.
-- The scanner and filter are not yet connected to the active shader pack or a Minecraft search screen.
+- JUnit tests cover scanner line parsing and search filtering.
+- GitHub Actions is configured to run `gradle test` and `gradle build`.
 
-This is a candidate scanner, **not** a complete Iris/Oculus option parser. Shader packs may expose settings through metadata such as `shaders.properties`, so the scanner alone cannot guarantee that every result is a real user-facing setting.
+The workflow has not yet been confirmed successful. The scanner and filter are not connected to the active shader pack or a Minecraft search screen.
 
-## Compatibility note
+## NeOculus integration research
 
-The NeOculus 1.21.1 source tree contains shader-pack option and menu classes, which are promising integration points. The project has not yet added a dependency on NeOculus or verified access to its runtime API. Integration must target the exact loader version and avoid hard-coding unsupported internals.
+The NeOculus 1.21.1 source exposes parsed shader options through `ShaderPack.getShaderPackOptions()`, followed by `ShaderPackOptions.getOptionSet()` and `getOptionValues()`. Boolean and string options are represented separately. These are promising integration points, but the project does not yet declare or verify a compatible NeOculus dependency, discover the active pack, or access its API at runtime.
+
+This is a candidate scanner, **not** a complete Iris/Oculus option parser. Shader packs may expose settings through metadata such as `shaders.properties`; the loader's parsed option model is preferable for real user-facing settings.
 
 ## Planned next steps
 
-1. Verify the test and build setup locally or in CI.
-2. Integrate with a specific NeoForge shader loader and active-pack API.
-3. Add a client-side search screen.
-4. Add a Gradle wrapper and verify a clean build.
+1. Verify the GitHub Actions build and test results; fix any toolchain or test issues.
+2. Select a specific NeOculus-compatible artifact/version and configure its dependency safely.
+3. Add a client-side bridge to the active shader pack's parsed options.
+4. Add a client-side search screen.
+5. Add a Gradle wrapper and verify a clean build.
 
 ## License
 
