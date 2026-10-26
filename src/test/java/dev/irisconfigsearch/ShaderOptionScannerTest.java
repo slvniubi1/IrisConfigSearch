@@ -42,6 +42,17 @@ class ShaderOptionScannerTest {
     }
 
     @Test
+    void parsesCommentedOutDefineWithAssignedValueAsDisabled() {
+        Optional<ShaderOptionScanner.Candidate> result =
+                ShaderOptionScanner.parseLine("// #define SHADOW_QUALITY 3 // Shadow quality level", "shaders/shadows.glsl");
+
+        assertTrue(result.isPresent());
+        assertEquals("SHADOW_QUALITY", result.orElseThrow().name());
+        assertEquals("Shadow quality level", result.orElseThrow().description());
+        assertFalse(result.orElseThrow().enabledByDefault());
+    }
+
+    @Test
     void parsesDefineWithAssignedValueAndDescription() {
         Optional<ShaderOptionScanner.Candidate> result =
                 ShaderOptionScanner.parseLine("#define SHADOW_QUALITY 3 // Shadow quality level", "shaders/shadows.glsl");
