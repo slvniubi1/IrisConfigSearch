@@ -4,13 +4,14 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * UI-independent state holder for the future client search screen.
- * It keeps query and default-state filtering in one testable place.
+ * UI-independent state holder for the client search screen.
+ * It keeps query and filtering in one testable place.
  */
 public final class ShaderOptionSearchSession {
     private final ShaderOptionSource source;
     private String query = "";
     private Boolean enabledByDefault;
+    private String typeFilter;
     private List<ShaderOptionEntry> snapshot = List.of();
 
     public ShaderOptionSearchSession(ShaderOptionSource source) {
@@ -34,6 +35,12 @@ public final class ShaderOptionSearchSession {
         this.enabledByDefault = enabledByDefault;
     }
 
+    /** null or "all" means show all types. */
+    public void setTypeFilter(String typeFilter) {
+        this.typeFilter = typeFilter == null || typeFilter.isBlank()
+                || typeFilter.equalsIgnoreCase("all") ? null : typeFilter.strip();
+    }
+
     public String query() {
         return query;
     }
@@ -42,7 +49,11 @@ public final class ShaderOptionSearchSession {
         return enabledByDefault;
     }
 
+    public String typeFilter() {
+        return typeFilter;
+    }
+
     public List<ShaderOptionEntry> results() {
-        return ShaderOptionSearch.filterEntries(snapshot, query, enabledByDefault);
+        return ShaderOptionSearch.filterEntries(snapshot, query, enabledByDefault, typeFilter);
     }
 }
