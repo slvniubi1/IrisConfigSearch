@@ -50,6 +50,14 @@ class ShaderOptionSearchTest {
     }
 
     @Test
+    void filtersCandidatesByDefaultEnabledState() {
+        assertEquals(List.of(OPTIONS.get(0), OPTIONS.get(2)),
+                ShaderOptionSearch.filterByDefaultState(OPTIONS, true));
+        assertEquals(List.of(OPTIONS.get(1)),
+                ShaderOptionSearch.filterByDefaultState(OPTIONS, false));
+    }
+
+    @Test
     void noMatchReturnsEmptyList() {
         assertEquals(List.of(), ShaderOptionSearch.filter(OPTIONS, "nonexistent"));
     }
