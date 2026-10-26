@@ -10,5 +10,6 @@
   "screen.irisconfigsearch.count": "%s options",
   "screen.irisconfigsearch.scroll_hint": "Scroll to browse",
   "screen.irisconfigsearch.type": "%s",
-  "screen.irisconfigsearch.default": "  default: %s"
+  "screen.irisconfigsearch.default": "default: %s",
+  "screen.irisconfigsearch.current": "current: %s"
 }
