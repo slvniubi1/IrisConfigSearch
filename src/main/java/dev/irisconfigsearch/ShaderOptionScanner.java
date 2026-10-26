@@ -3,6 +3,9 @@ package dev.irisconfigsearch;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.stream.Stream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -62,6 +65,34 @@ public final class ShaderOptionScanner {
             }
         }
 
+        return List.copyOf(candidates.values());
+    }
+
+    /**
+     * Scans an unpacked shader-pack directory. Symbolic links are not followed.
+     */
+    public static List<Candidate> scanDirectory(Path root) throws IOException {
+        Objects.requireNonNull(root, "root");
+        if (!Files.isDirectory(root)) {
+            throw new IOException("Shader pack path is not a directory: " + root);
+        }
+
+        Map<String, Candidate> candidates = new LinkedHashMap<>();
+        try (Stream<Path> paths = Files.walk(root)) {
+            for (Path path : paths.filter(Files::isRegularFile)
+                    .filter(file -> isShaderSource(file.getFileName().toString()))
+                    .sorted()
+                    .toList()) {
+                String sourceFile = root.relativize(path).toString().replace('\\\\', '/');
+                try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        parseLine(line, sourceFile).ifPresent(candidate ->
+                                candidates.putIfAbsent(candidate.name(), candidate));
+                    }
+                }
+            }
+        }
         return List.copyOf(candidates.values());
     }
 
