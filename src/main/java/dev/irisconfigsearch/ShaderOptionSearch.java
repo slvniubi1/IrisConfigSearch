@@ -7,8 +7,9 @@ import java.util.Objects;
 /**
  * Case-insensitive in-memory search for shader option candidates.
  *
- * The query matches an option's name, description, or source file. An empty query
- * returns all options in their original order.
+ * The query matches an option's name, description, or source file. Multiple
+ * whitespace-separated terms may match different fields; every term must match.
+ * An empty query returns all options in their original order.
  */
 public final class ShaderOptionSearch {
     private ShaderOptionSearch() {
@@ -23,14 +24,20 @@ public final class ShaderOptionSearch {
             return List.copyOf(candidates);
         }
 
+        String[] terms = normalizedQuery.split("\\s+");
         return candidates.stream()
-                .filter(candidate -> matches(candidate, normalizedQuery))
+                .filter(candidate -> matchesAllTerms(candidate, terms))
                 .toList();
     }
 
-    private static boolean matches(ShaderOptionScanner.Candidate candidate, String query) {
-        return candidate.name().toLowerCase(Locale.ROOT).contains(query)
-                || candidate.description().toLowerCase(Locale.ROOT).contains(query)
-                || candidate.sourceFile().toLowerCase(Locale.ROOT).contains(query);
+    private static boolean matchesAllTerms(ShaderOptionScanner.Candidate candidate, String[] terms) {
+        String searchableText = (candidate.name() + " " + candidate.description() + " "
+                + candidate.sourceFile()).toLowerCase(Locale.ROOT);
+        for (String term : terms) {
+            if (!searchableText.contains(term)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
