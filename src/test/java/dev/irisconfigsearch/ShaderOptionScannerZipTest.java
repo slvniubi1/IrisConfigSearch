@@ -61,6 +61,30 @@ class ShaderOptionScannerZipTest {
         }
     }
 
+    @Test
+    void scansUnpackedShaderPackDirectory() throws IOException {
+        Path root = Files.createTempDirectory("shader-pack-directory");
+        try {
+            Path shaderDir = Files.createDirectories(root.resolve("shaders/world"));
+            Files.writeString(shaderDir.resolve("terrain.fsh"),
+                    "#define TERRAIN_DETAIL 2 // Terrain detail\n// #define OLD_WATER\n");
+            Files.writeString(root.resolve("readme.txt"), "#define IGNORE_ME\n");
+
+            List<ShaderOptionScanner.Candidate> options = ShaderOptionScanner.scanDirectory(root);
+
+            assertEquals(List.of("TERRAIN_DETAIL", "OLD_WATER"),
+                    options.stream().map(ShaderOptionScanner.Candidate::name).toList());
+            assertEquals("shaders/world/terrain.fsh", options.get(0).sourceFile());
+            assertEquals(false, options.get(1).enabledByDefault());
+        } finally {
+            try (var paths = Files.walk(root)) {
+                for (Path path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                    Files.deleteIfExists(path);
+                }
+            }
+        }
+    }
+
     private static void addEntry(ZipOutputStream output, String name, String content) throws IOException {
         output.putNextEntry(new ZipEntry(name));
         output.write(content.getBytes(StandardCharsets.UTF_8));
