@@ -14,14 +14,19 @@ import java.util.List;
 /** First client UI for searching options from the currently active NeOculus shader pack. */
 public final class ShaderOptionSearchScreen extends Screen {
     private static final int ROW_HEIGHT = 14;
-    private final ShaderOptionSearchSession session =
-            new ShaderOptionSearchSession(new NeOculusOptionSource());
+    private ShaderOptionSearchSession session;
     private EditBox searchBox;
     private String status = "";
     private int scrollOffset;
 
     public ShaderOptionSearchScreen() {
         super(Component.translatable("screen.irisconfigsearch.title"));
+        try {
+            session = new ShaderOptionSearchSession(new NeOculusOptionSource());
+        } catch (RuntimeException exception) {
+            session = new ShaderOptionSearchSession(List::of);
+            status = Component.translatable("screen.irisconfigsearch.integration_error").getString();
+        }
         refreshOptions();
     }
 
@@ -50,9 +55,11 @@ public final class ShaderOptionSearchScreen extends Screen {
     private void refreshOptions() {
         try {
             session.refresh();
-            status = session.results().isEmpty()
-                    ? Component.translatable("screen.irisconfigsearch.no_options").getString()
-                    : "";
+            if (status.isEmpty()) {
+                status = session.results().isEmpty()
+                        ? Component.translatable("screen.irisconfigsearch.no_options").getString()
+                        : "";
+            }
         } catch (RuntimeException exception) {
             status = Component.translatable("screen.irisconfigsearch.integration_error").getString();
         }
