@@ -58,6 +58,21 @@ class ShaderOptionSearchTest {
     }
 
     @Test
+    void combinesTextSearchWithDefaultStateFilter() {
+        assertEquals(List.of(OPTIONS.get(0)),
+                ShaderOptionSearch.filter(OPTIONS, "shadow", true));
+        assertEquals(List.of(OPTIONS.get(1)),
+                ShaderOptionSearch.filter(OPTIONS, "bloom", false));
+        assertEquals(List.of(),
+                ShaderOptionSearch.filter(OPTIONS, "bloom", true));
+    }
+
+    @Test
+    void nullStateIncludesEnabledAndDisabledCandidates() {
+        assertEquals(OPTIONS, ShaderOptionSearch.filter(OPTIONS, "", null));
+    }
+
+    @Test
     void noMatchReturnsEmptyList() {
         assertEquals(List.of(), ShaderOptionSearch.filter(OPTIONS, "nonexistent"));
     }
