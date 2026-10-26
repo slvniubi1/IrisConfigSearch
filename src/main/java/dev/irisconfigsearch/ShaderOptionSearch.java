@@ -48,6 +48,36 @@ public final class ShaderOptionSearch {
                 .toList();
     }
 
+    /**
+     * Searches unified entries for use by client UI code.
+     *
+     * @param enabledByDefault true/false to restrict the default state, or null for both
+     */
+    public static List<ShaderOptionEntry> filterEntries(
+            List<ShaderOptionEntry> entries, String query, Boolean enabledByDefault) {
+        Objects.requireNonNull(entries, "entries");
+
+        String normalizedQuery = query == null ? "" : query.strip().toLowerCase(Locale.ROOT);
+        String[] terms = normalizedQuery.isEmpty() ? new String[0] : normalizedQuery.split("\\s+");
+        return entries.stream()
+                .filter(entry -> enabledByDefault == null
+                        || entry.enabledByDefault() == enabledByDefault)
+                .filter(entry -> matchesAllTerms(entry, terms))
+                .toList();
+    }
+
+    private static boolean matchesAllTerms(ShaderOptionEntry entry, String[] terms) {
+        String searchableText = (entry.name() + " " + entry.description() + " "
+                + entry.sourceFile() + " " + entry.currentValue().orElse(""))
+                .toLowerCase(Locale.ROOT);
+        for (String term : terms) {
+            if (!searchableText.contains(term)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static boolean matchesAllTerms(ShaderOptionScanner.Candidate candidate, String[] terms) {
         String searchableText = (candidate.name() + " " + candidate.description() + " "
                 + candidate.sourceFile()).toLowerCase(Locale.ROOT);
