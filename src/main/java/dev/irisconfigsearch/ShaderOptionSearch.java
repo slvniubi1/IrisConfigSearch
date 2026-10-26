@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * Case-insensitive in-memory search for shader option candidates.
  *
- * The query matches either an option's name or its description. An empty query
+ * The query matches an option's name, description, or source file. An empty query
  * returns all options in their original order.
  */
 public final class ShaderOptionSearch {
@@ -30,6 +30,7 @@ public final class ShaderOptionSearch {
 
     private static boolean matches(ShaderOptionScanner.Candidate candidate, String query) {
         return candidate.name().toLowerCase(Locale.ROOT).contains(query)
-                || candidate.description().toLowerCase(Locale.ROOT).contains(query);
+                || candidate.description().toLowerCase(Locale.ROOT).contains(query)
+                || candidate.sourceFile().toLowerCase(Locale.ROOT).contains(query);
     }
 }
