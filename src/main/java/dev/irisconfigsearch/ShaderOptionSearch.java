@@ -30,6 +30,17 @@ public final class ShaderOptionSearch {
                 .toList();
     }
 
+    /**
+     * Returns only candidates whose source define is enabled or disabled by default.
+     */
+    public static List<ShaderOptionScanner.Candidate> filterByDefaultState(
+            List<ShaderOptionScanner.Candidate> candidates, boolean enabledByDefault) {
+        Objects.requireNonNull(candidates, "candidates");
+        return candidates.stream()
+                .filter(candidate -> candidate.enabledByDefault() == enabledByDefault)
+                .toList();
+    }
+
     private static boolean matchesAllTerms(ShaderOptionScanner.Candidate candidate, String[] terms) {
         String searchableText = (candidate.name() + " " + candidate.description() + " "
                 + candidate.sourceFile()).toLowerCase(Locale.ROOT);
