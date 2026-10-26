@@ -4,7 +4,7 @@ A Minecraft 1.21.1 + NeoForge mod project intended to search configuration optio
 
 ## Status
 
-**Early development — not yet feature-complete or build-verified.** The project currently has a loader-independent shader-source candidate scanner and a pure-Java search filter.
+**Early development — not yet feature-complete or build-verified.** The project currently has a loader-independent shader-source candidate scanner, a pure-Java search filter, and JUnit tests for both.
 
 ## Requirements
 
@@ -17,20 +17,21 @@ A Minecraft 1.21.1 + NeoForge mod project intended to search configuration optio
 - `ShaderOptionScanner.scanZip(ZipFile)` scans `.vsh`, `.fsh`, `.gsh`, `.tsh`, and `.glsl` files.
 - Candidate options are deduplicated by option name.
 - `ShaderOptionSearch.filter(candidates, query)` performs case-insensitive matching against option names and descriptions. An empty query returns all candidates.
+- Unit tests cover define parsing, commented-out defines, descriptions, ignored lines, and search filtering.
 - The scanner and filter are not yet connected to the active shader pack or a Minecraft search screen.
 
 This is a candidate scanner, **not** a complete Iris/Oculus option parser. Shader packs may expose settings through metadata such as `shaders.properties`, so the scanner alone cannot guarantee that every result is a real user-facing setting.
 
 ## Compatibility note
 
-Iris is primarily associated with Fabric-based setups, while NeoForge shader support commonly uses Oculus or compatible forks. Integration must target the actual loader version and its exposed configuration API. This project does not yet claim compatibility with Iris or Oculus.
+The NeOculus 1.21.1 source tree contains shader-pack option and menu classes, which are promising integration points. The project has not yet added a dependency on NeOculus or verified access to its runtime API. Integration must target the exact loader version and avoid hard-coding unsupported internals.
 
 ## Planned next steps
 
-1. Add automated tests for scanning and filtering.
-2. Identify and integrate with a specific NeoForge shader loader and active-pack API.
+1. Verify the test and build setup locally or in CI.
+2. Integrate with a specific NeoForge shader loader and active-pack API.
 3. Add a client-side search screen.
-4. Add a Gradle wrapper and verify the build.
+4. Add a Gradle wrapper and verify a clean build.
 
 ## License
 
