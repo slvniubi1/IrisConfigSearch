@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.LinkOption;
 import java.util.stream.Stream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -79,7 +80,7 @@ public final class ShaderOptionScanner {
 
         Map<String, Candidate> candidates = new LinkedHashMap<>();
         try (Stream<Path> paths = Files.walk(root)) {
-            for (Path path : paths.filter(Files::isRegularFile)
+            for (Path path : paths.filter(file -> Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS))
                     .filter(file -> isShaderSource(file.getFileName().toString()))
                     .sorted()
                     .toList()) {
