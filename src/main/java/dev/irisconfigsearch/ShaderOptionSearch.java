@@ -37,9 +37,6 @@ public final class ShaderOptionSearch {
                 .toList();
     }
 
-    /**
-     * Returns only candidates whose source define is enabled or disabled by default.
-     */
     public static List<ShaderOptionScanner.Candidate> filterByDefaultState(
             List<ShaderOptionScanner.Candidate> candidates, boolean enabledByDefault) {
         Objects.requireNonNull(candidates, "candidates");
@@ -48,20 +45,27 @@ public final class ShaderOptionSearch {
                 .toList();
     }
 
-    /**
-     * Searches unified entries for use by client UI code.
-     *
-     * @param enabledByDefault true/false to restrict the default state, or null for both
-     */
+    /** Searches unified entries by text, default state, and optionally by type. */
     public static List<ShaderOptionEntry> filterEntries(
             List<ShaderOptionEntry> entries, String query, Boolean enabledByDefault) {
+        return filterEntries(entries, query, enabledByDefault, null);
+    }
+
+    /**
+     * @param typeFilter a type such as "boolean" or "string", or null to include every type
+     */
+    public static List<ShaderOptionEntry> filterEntries(
+            List<ShaderOptionEntry> entries, String query, Boolean enabledByDefault, String typeFilter) {
         Objects.requireNonNull(entries, "entries");
 
         String normalizedQuery = query == null ? "" : query.strip().toLowerCase(Locale.ROOT);
         String[] terms = normalizedQuery.isEmpty() ? new String[0] : normalizedQuery.split("\\s+");
+        String normalizedType = typeFilter == null || typeFilter.isBlank()
+                || typeFilter.equalsIgnoreCase("all") ? null : typeFilter.strip();
         return entries.stream()
                 .filter(entry -> enabledByDefault == null
                         || entry.enabledByDefault() == enabledByDefault)
+                .filter(entry -> normalizedType == null || entry.type().equalsIgnoreCase(normalizedType))
                 .filter(entry -> matchesAllTerms(entry, terms))
                 .toList();
     }
