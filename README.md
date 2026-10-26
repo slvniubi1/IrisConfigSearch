@@ -18,10 +18,12 @@ A Minecraft 1.21.1 + NeoForge mod project intended to search configuration optio
 - Candidate options are deduplicated by option name.
 
 - `ShaderOptionEntry` is a UI-independent view model that carries source metadata and an optional runtime value. Source-only entries deliberately leave the current value unavailable instead of guessing it.
+- `ShaderOptionCatalog.build(candidates, currentValues)` creates a case-insensitively sorted list for a future UI and attaches runtime values when available.
+- `ShaderOptionSearch.filterEntries(entries, query, enabledByDefault)` searches unified entries, including available current values, and optionally filters by default state.
 - Search can locate an option by its identifier, human-readable comment, or shader source path.
 - `ShaderOptionSearch.filter(candidates, query)` performs case-insensitive, multi-term matching against option names, descriptions, and source-file paths. Every whitespace-separated term must match somewhere; an empty query returns all candidates.
 - `ShaderOptionSearch.filterByDefaultState(candidates, enabledByDefault)` filters candidates by whether the source define is enabled or commented out by default.
-- JUnit tests cover line parsing, search filtering, scanning shader sources from ZIP archives and directories, and the unified option entry model.
+- JUnit tests cover line parsing, search filtering, scanning shader sources from ZIP archives and directories, the unified option entry model, and catalog ordering/value mapping.
 - GitHub Actions runs `gradle test` and `gradle build`, then uploads the built JAR as a development artifact if both steps succeed.
 
 ## Downloading a development build
