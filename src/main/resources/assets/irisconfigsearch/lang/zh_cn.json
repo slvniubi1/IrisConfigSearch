@@ -20,5 +20,6 @@
   "screen.irisconfigsearch.scroll_hint": "滚动浏览",
   "screen.irisconfigsearch.type": "%s",
   "screen.irisconfigsearch.default": "默认值：%s",
-  "screen.irisconfigsearch.current": "当前值：%s"
+  "screen.irisconfigsearch.current": "当前值：%s",
+  "screen.irisconfigsearch.open_from_iris": "搜索着色器选项"
 }
