@@ -11,13 +11,15 @@ import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
-/** Client UI for searching options from the currently active NeOculus shader pack. */
+/** Search and edit screen for options exposed by the active NeOculus shader pack. */
 public final class ShaderOptionSearchScreen extends Screen {
-    private static final int ROW_HEIGHT = 32;
+    private static final int ROW_HEIGHT = 34;
+    private static final int LIST_TOP = 66;
     private static final String[] TYPE_FILTERS = {"all", "boolean", "string", "define"};
     private static final Boolean[] DEFAULT_FILTERS = {null, true, false};
 
     private ShaderOptionSearchSession session;
+    private NeOculusOptionSource optionSource;
     private EditBox searchBox;
     private String status = "";
     private int scrollOffset;
@@ -27,7 +29,8 @@ public final class ShaderOptionSearchScreen extends Screen {
     public ShaderOptionSearchScreen() {
         super(Component.translatable("screen.irisconfigsearch.title"));
         try {
-            session = new ShaderOptionSearchSession(new NeOculusOptionSource());
+            optionSource = new NeOculusOptionSource();
+            session = new ShaderOptionSearchSession(optionSource);
         } catch (RuntimeException exception) {
             session = new ShaderOptionSearchSession(List::of);
             status = Component.translatable("screen.irisconfigsearch.integration_error").getString();
@@ -102,27 +105,28 @@ public final class ShaderOptionSearchScreen extends Screen {
         graphics.drawCenteredString(font, title, width / 2, 14, 0xFFFFFF);
 
         List<ShaderOptionEntry> results = session.results();
-        int top = 66;
         int bottom = height - 42;
-        int visibleRows = Math.max(0, (bottom - top) / ROW_HEIGHT);
+        int visibleRows = Math.max(0, (bottom - LIST_TOP) / ROW_HEIGHT);
         int maxOffset = Math.max(0, results.size() - visibleRows);
         scrollOffset = Math.min(scrollOffset, maxOffset);
 
         if (!status.isEmpty()) {
-            graphics.drawCenteredString(font, status, width / 2, top + 10, 0xFF7777);
+            graphics.drawCenteredString(font, status, width / 2, LIST_TOP + 10, 0xFF7777);
         } else if (results.isEmpty()) {
             graphics.drawCenteredString(font,
-                    Component.translatable("screen.irisconfigsearch.no_matches"), width / 2, top + 10, 0xAAAAAA);
+                    Component.translatable("screen.irisconfigsearch.no_matches"), width / 2, LIST_TOP + 10, 0xAAAAAA);
         } else {
             for (int i = 0; i < visibleRows && i + scrollOffset < results.size(); i++) {
                 ShaderOptionEntry option = results.get(i + scrollOffset);
-                int y = top + i * ROW_HEIGHT;
+                int y = LIST_TOP + i * ROW_HEIGHT;
+                int actionLeft = width - 94;
                 String typeLabel = Component.translatable("screen.irisconfigsearch.type", option.type()).getString();
-                String heading = font.plainSubstrByWidth(option.name() + " [" + typeLabel + "]", width - 24);
-                graphics.drawString(font, heading, 12, y, 0xE0E0E0, false);
+                graphics.drawString(font,
+                        font.plainSubstrByWidth(option.name() + " [" + typeLabel + "]", actionLeft - 18),
+                        12, y, 0xE0E0E0, false);
 
                 if (!option.description().isBlank()) {
-                    graphics.drawString(font, font.plainSubstrByWidth(option.description(), width - 24),
+                    graphics.drawString(font, font.plainSubstrByWidth(option.description(), actionLeft - 18),
                             12, y + 10, 0x909090, false);
                 }
 
@@ -135,9 +139,18 @@ public final class ShaderOptionSearchScreen extends Screen {
                 String values = currentLabel.isEmpty() ? defaultLabel
                         : defaultLabel.isEmpty() ? currentLabel : currentLabel + "  |  " + defaultLabel;
                 if (!values.isEmpty()) {
-                    graphics.drawString(font, font.plainSubstrByWidth(values, width - 24),
+                    graphics.drawString(font, font.plainSubstrByWidth(values, actionLeft - 18),
                             12, y + 20, 0xA0C8FF, false);
                 }
+
+                boolean editable = optionSource != null
+                        && ("boolean".equals(option.type()) || "string".equals(option.type()));
+                int color = editable ? 0xFF477A9F : 0xFF555555;
+                graphics.fill(actionLeft, y + 5, width - 8, y + 27, color);
+                graphics.drawCenteredString(font,
+                        Component.translatable(editable ? "screen.irisconfigsearch.change"
+                                : "screen.irisconfigsearch.read_only"),
+                        actionLeft + 43, y + 12, 0xFFFFFF);
             }
         }
 
@@ -149,8 +162,32 @@ public final class ShaderOptionSearchScreen extends Screen {
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (super.mouseClicked(mouseX, mouseY, button)) return true;
+        if (button != 0 || optionSource == null || mouseX < width - 94 || mouseX > width - 8
+                || mouseY < LIST_TOP || mouseY >= height - 42) return false;
+
+        int row = (int) ((mouseY - LIST_TOP) / ROW_HEIGHT);
+        int index = row + scrollOffset;
+        List<ShaderOptionEntry> results = session.results();
+        if (index < 0 || index >= results.size()) return false;
+
+        ShaderOptionEntry option = results.get(index);
+        if (!"boolean".equals(option.type()) && !"string".equals(option.type())) return false;
+        try {
+            optionSource.cycleOption(option);
+            refreshOptions();
+        } catch (RuntimeException exception) {
+            status = Component.translatable("screen.irisconfigsearch.apply_error",
+                    exception.getMessage() == null ? exception.getClass().getSimpleName() : exception.getMessage())
+                    .getString();
+        }
+        return true;
+    }
+
+    @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        int visibleRows = Math.max(0, (height - 42 - 66) / ROW_HEIGHT);
+        int visibleRows = Math.max(0, (height - 42 - LIST_TOP) / ROW_HEIGHT);
         int maxOffset = Math.max(0, session.results().size() - visibleRows);
         scrollOffset = Math.max(0, Math.min(maxOffset, scrollOffset - (int) Math.signum(scrollY) * 3));
         return true;
@@ -158,9 +195,7 @@ public final class ShaderOptionSearchScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (minecraft != null) {
-            minecraft.setScreen(null);
-        }
+        if (minecraft != null) minecraft.setScreen(null);
     }
 
     @Override
