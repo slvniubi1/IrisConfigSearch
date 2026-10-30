@@ -21,5 +21,8 @@
   "screen.irisconfigsearch.type": "%s",
   "screen.irisconfigsearch.default": "default: %s",
   "screen.irisconfigsearch.current": "current: %s",
-  "screen.irisconfigsearch.open_from_iris": "Search shader options"
+  "screen.irisconfigsearch.open_from_iris": "Search shader options",
+  "screen.irisconfigsearch.change": "Change",
+  "screen.irisconfigsearch.read_only": "Read only",
+  "screen.irisconfigsearch.apply_error": "Could not apply: %s"
 }
