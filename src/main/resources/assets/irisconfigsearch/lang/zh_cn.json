@@ -21,5 +21,8 @@
   "screen.irisconfigsearch.type": "%s",
   "screen.irisconfigsearch.default": "默认值：%s",
   "screen.irisconfigsearch.current": "当前值：%s",
-  "screen.irisconfigsearch.open_from_iris": "搜索着色器选项"
+  "screen.irisconfigsearch.open_from_iris": "搜索着色器选项",
+  "screen.irisconfigsearch.change": "修改",
+  "screen.irisconfigsearch.read_only": "只读",
+  "screen.irisconfigsearch.apply_error": "修改失败：%s"
 }
