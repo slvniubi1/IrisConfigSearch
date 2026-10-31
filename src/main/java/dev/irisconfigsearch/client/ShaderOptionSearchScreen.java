@@ -10,6 +10,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /** Search and edit screen for options exposed by the active NeOculus shader pack. */
 public final class ShaderOptionSearchScreen extends Screen {
@@ -25,6 +27,9 @@ public final class ShaderOptionSearchScreen extends Screen {
     private int scrollOffset;
     private int typeFilterIndex;
     private int defaultFilterIndex;
+    private final Map<String, String> pendingChanges = new LinkedHashMap<>();
+    private Button applyButton;
+    private Button discardButton;
 
     public ShaderOptionSearchScreen() {
         super(Component.translatable("screen.irisconfigsearch.title"));
@@ -70,8 +75,14 @@ public final class ShaderOptionSearchScreen extends Screen {
             scrollOffset = 0;
         }).bounds(left + 256, 36, 44, 20).build());
 
+        applyButton = addRenderableWidget(Button.builder(applyLabel(), button -> applyPending())
+                .bounds(width / 2 - 154, height - 30, 100, 20).build());
+        discardButton = addRenderableWidget(Button.builder(Component.translatable("screen.irisconfigsearch.discard"),
+                button -> { pendingChanges.clear(); refreshOptions(); })
+                .bounds(width / 2 - 50, height - 30, 100, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
-                .bounds(this.width / 2 - 50, this.height - 30, 100, 20).build());
+                .bounds(width / 2 + 54, height - 30, 100, 20).build());
+        updateActionButtons();
     }
 
     private Component typeFilterLabel() {
@@ -84,6 +95,18 @@ public final class ShaderOptionSearchScreen extends Screen {
                 : defaultFilterIndex == 1 ? "enabled" : "disabled";
         return Component.translatable("screen.irisconfigsearch.default_filter",
                 Component.translatable("screen.irisconfigsearch.default_filter." + key));
+    }
+
+    private Component applyLabel() { return Component.translatable("screen.irisconfigsearch.apply_count", pendingChanges.size()); }
+    private void updateActionButtons() {
+        if (applyButton != null) { applyButton.active = !pendingChanges.isEmpty() && optionSource != null; applyButton.setMessage(applyLabel()); }
+        if (discardButton != null) discardButton.active = !pendingChanges.isEmpty();
+    }
+    private void applyPending() {
+        if (pendingChanges.isEmpty() || optionSource == null) return;
+        try { optionSource.applyChanges(pendingChanges); pendingChanges.clear(); refreshOptions(); }
+        catch (RuntimeException e) { status = Component.translatable("screen.irisconfigsearch.apply_error", e.getMessage()).getString(); }
+        updateActionButtons();
     }
 
     private void refreshOptions() {
@@ -130,9 +153,8 @@ public final class ShaderOptionSearchScreen extends Screen {
                             12, y + 10, 0x909090, false);
                 }
 
-                String currentLabel = option.currentValue()
-                        .map(value -> Component.translatable("screen.irisconfigsearch.current", value).getString())
-                        .orElse("");
+                String currentValue = pendingChanges.getOrDefault(option.name(), option.currentValue().orElse(""));
+                String currentLabel = currentValue.isEmpty() ? "" : Component.translatable("screen.irisconfigsearch.current", currentValue).getString();
                 String defaultLabel = option.defaultValue()
                         .map(value -> Component.translatable("screen.irisconfigsearch.default", value).getString())
                         .orElse("");
@@ -175,8 +197,12 @@ public final class ShaderOptionSearchScreen extends Screen {
         ShaderOptionEntry option = results.get(index);
         if (!"boolean".equals(option.type()) && !"string".equals(option.type())) return false;
         try {
-            optionSource.cycleOption(option);
-            refreshOptions();
+            String current = pendingChanges.getOrDefault(option.name(), option.currentValue().orElse(""));
+            String next = optionSource.nextValue(option, current);
+            if (next.equals(option.currentValue().orElse(""))) pendingChanges.remove(option.name());
+            else pendingChanges.put(option.name(), next);
+            status = "";
+            updateActionButtons();
         } catch (RuntimeException exception) {
             status = Component.translatable("screen.irisconfigsearch.apply_error",
                     exception.getMessage() == null ? exception.getClass().getSimpleName() : exception.getMessage())
