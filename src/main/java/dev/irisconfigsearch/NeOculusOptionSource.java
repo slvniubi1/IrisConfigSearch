@@ -43,48 +43,41 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
      * Cycles a boolean option or advances a string option to its next allowed value.
      * NeOculus persists queued values to the shader-pack config when Iris.reload() runs.
      */
-    public void cycleOption(ShaderOptionEntry entry) {
+    public String nextValue(ShaderOptionEntry entry, String currentValue) {
         try {
             Class<?> iris = Class.forName(IRIS_CLASS);
             Object pack = unwrapOptional(invoke(iris, null, "getCurrentPack"));
             if (pack == null) throw new IllegalStateException("No active shader pack");
-
             Object packOptions = invoke(pack.getClass(), pack, "getShaderPackOptions");
             Object optionSet = invoke(packOptions.getClass(), packOptions, "getOptionSet");
-            Object optionValues = invoke(packOptions.getClass(), packOptions, "getOptionValues");
             boolean isBoolean = "boolean".equals(entry.type());
             String mapMethod = isBoolean ? "getBooleanOptions" : "getStringOptions";
             Object raw = ((Map<?, ?>) invoke(optionSet.getClass(), optionSet, mapMethod)).get(entry.name());
             if (raw == null) throw new IllegalArgumentException("Unknown shader option: " + entry.name());
-
             Object option = invoke(raw.getClass(), raw, "getOption");
-            String nextValue;
-            if (isBoolean) {
-                boolean defaultValue = (boolean) invoke(option.getClass(), option, "getDefaultValue");
-                Object current = invoke(optionValues.getClass(), optionValues, "getBooleanValue", entry.name());
-                boolean currentValue = (boolean) invoke(current.getClass(), current, "orElse", defaultValue);
-                nextValue = Boolean.toString(!currentValue);
-            } else if ("string".equals(entry.type())) {
-                String defaultValue = (String) invoke(option.getClass(), option, "getDefaultValue");
-                Object currentRaw = invoke(optionValues.getClass(), optionValues, "getStringValue", entry.name());
-                Object currentUnwrapped = unwrapOptional(currentRaw);
-                String currentValue = currentUnwrapped == null ? defaultValue : currentUnwrapped.toString();
-                Object allowedRaw = invoke(option.getClass(), option, "getAllowedValues");
-                List<String> allowed = new ArrayList<>();
-                for (Object value : (Iterable<?>) allowedRaw) allowed.add(value.toString());
-                if (allowed.isEmpty()) throw new IllegalStateException("No allowed values for " + entry.name());
-                int index = allowed.indexOf(currentValue);
-                nextValue = allowed.get((index + 1 + allowed.size()) % allowed.size());
-            } else {
-                throw new IllegalArgumentException("This option type cannot be edited: " + entry.type());
-            }
+            if (isBoolean) return Boolean.toString(!Boolean.parseBoolean(currentValue));
+            if (!"string".equals(entry.type())) throw new IllegalArgumentException("Read-only option");
+            Object allowedRaw = invoke(option.getClass(), option, "getAllowedValues");
+            List<String> allowed = new ArrayList<>();
+            for (Object value : (Iterable<?>) allowedRaw) allowed.add(value.toString());
+            if (allowed.isEmpty()) throw new IllegalStateException("No allowed values for " + entry.name());
+            int index = allowed.indexOf(currentValue);
+            return allowed.get((index + 1 + allowed.size()) % allowed.size());
+        } catch (ReflectiveOperationException error) {
+            throw new IllegalStateException("Unable to read option from NeOculus.", error);
+        }
+    }
 
+    public void applyChanges(Map<String, String> changes) {
+        if (changes.isEmpty()) return;
+        try {
+            Class<?> iris = Class.forName(IRIS_CLASS);
             @SuppressWarnings("unchecked")
             Map<String, String> queue = (Map<String, String>) invoke(iris, null, "getShaderPackOptionQueue");
-            queue.put(entry.name(), nextValue);
+            queue.putAll(changes);
             invoke(iris, null, "reload");
         } catch (ReflectiveOperationException error) {
-            throw new IllegalStateException("NeOculus could not apply this option. Check API compatibility.", error);
+            throw new IllegalStateException("NeOculus could not apply staged options.", error);
         }
     }
 
