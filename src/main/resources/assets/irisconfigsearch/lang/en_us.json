@@ -24,5 +24,9 @@
   "screen.irisconfigsearch.open_from_iris": "Search shader options",
   "screen.irisconfigsearch.change": "Change",
   "screen.irisconfigsearch.read_only": "Read only",
-  "screen.irisconfigsearch.apply_error": "Could not apply: %s"
+  "screen.irisconfigsearch.apply_error": "Could not apply: %s",
+  "screen.irisconfigsearch.staged": "Staged",
+  "screen.irisconfigsearch.apply_count": "Apply & Save (%s)",
+  "screen.irisconfigsearch.discard": "Discard changes",
+  "screen.irisconfigsearch.applied": "Changes submitted; reloading shaders."
 }
