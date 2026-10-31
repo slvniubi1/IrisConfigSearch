@@ -119,6 +119,7 @@ public final class ShaderOptionSearchScreen extends Screen {
         } catch (RuntimeException exception) {
             status = Component.translatable("screen.irisconfigsearch.integration_error").getString();
         }
+        updateActionButtons();
     }
 
     @Override
@@ -169,9 +170,10 @@ public final class ShaderOptionSearchScreen extends Screen {
                         && ("boolean".equals(option.type()) || "string".equals(option.type()));
                 int color = editable ? 0xFF477A9F : 0xFF555555;
                 graphics.fill(actionLeft, y + 5, width - 8, y + 27, color);
+                boolean staged = pendingChanges.containsKey(option.name());
                 graphics.drawCenteredString(font,
-                        Component.translatable(editable ? "screen.irisconfigsearch.change"
-                                : "screen.irisconfigsearch.read_only"),
+                        Component.translatable(!editable ? "screen.irisconfigsearch.read_only"
+                                : staged ? "screen.irisconfigsearch.staged" : "screen.irisconfigsearch.change"),
                         actionLeft + 43, y + 12, 0xFFFFFF);
             }
         }
