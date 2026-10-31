@@ -24,5 +24,9 @@
   "screen.irisconfigsearch.open_from_iris": "搜索着色器选项",
   "screen.irisconfigsearch.change": "修改",
   "screen.irisconfigsearch.read_only": "只读",
-  "screen.irisconfigsearch.apply_error": "修改失败：%s"
+  "screen.irisconfigsearch.apply_error": "修改失败：%s",
+  "screen.irisconfigsearch.staged": "已暂存",
+  "screen.irisconfigsearch.apply_count": "应用并保存（%s）",
+  "screen.irisconfigsearch.discard": "撤销更改",
+  "screen.irisconfigsearch.applied": "更改已提交，正在重新加载着色器。"
 }
