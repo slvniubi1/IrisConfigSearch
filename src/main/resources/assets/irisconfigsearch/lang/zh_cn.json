@@ -25,8 +25,9 @@
   "screen.irisconfigsearch.change": "修改",
   "screen.irisconfigsearch.read_only": "只读",
   "screen.irisconfigsearch.apply_error": "修改失败：%s",
-  "screen.irisconfigsearch.staged": "已暂存",
-  "screen.irisconfigsearch.apply_count": "应用并保存（%s）",
-  "screen.irisconfigsearch.discard": "撤销更改",
-  "screen.irisconfigsearch.applied": "更改已提交，正在重新加载着色器。"
+  "screen.irisconfigsearch.staged": "待保存",
+  "screen.irisconfigsearch.confirm_save_count": "确认保存并生效（%s）",
+  "screen.irisconfigsearch.discard": "撤销暂存",
+  "screen.irisconfigsearch.applied": "已确认保存，修改正在生效。",
+  "screen.irisconfigsearch.pending_hint": "已暂存 %s 项，尚未生效；点击底部按钮统一保存并应用。"
 }
