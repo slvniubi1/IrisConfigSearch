@@ -16,7 +16,7 @@ import java.util.Map;
 /** Search and edit screen for options exposed by the active NeOculus shader pack. */
 public final class ShaderOptionSearchScreen extends Screen {
     private static final int ROW_HEIGHT = 34;
-    private static final int LIST_TOP = 66;
+    private static final int LIST_TOP = 78;
     private static final String[] TYPE_FILTERS = {"all", "boolean", "string", "define"};
     private static final Boolean[] DEFAULT_FILTERS = {null, true, false};
 
@@ -97,14 +97,14 @@ public final class ShaderOptionSearchScreen extends Screen {
                 Component.translatable("screen.irisconfigsearch.default_filter." + key));
     }
 
-    private Component applyLabel() { return Component.translatable("screen.irisconfigsearch.apply_count", pendingChanges.size()); }
+    private Component applyLabel() { return Component.translatable("screen.irisconfigsearch.confirm_save_count", pendingChanges.size()); }
     private void updateActionButtons() {
         if (applyButton != null) { applyButton.active = !pendingChanges.isEmpty() && optionSource != null; applyButton.setMessage(applyLabel()); }
         if (discardButton != null) discardButton.active = !pendingChanges.isEmpty();
     }
     private void applyPending() {
         if (pendingChanges.isEmpty() || optionSource == null) return;
-        try { optionSource.applyChanges(pendingChanges); pendingChanges.clear(); refreshOptions(); }
+        try { optionSource.applyChanges(pendingChanges); pendingChanges.clear(); refreshOptions(); status = Component.translatable("screen.irisconfigsearch.applied").getString(); }
         catch (RuntimeException e) { status = Component.translatable("screen.irisconfigsearch.apply_error", e.getMessage()).getString(); }
         updateActionButtons();
     }
@@ -129,6 +129,10 @@ public final class ShaderOptionSearchScreen extends Screen {
         graphics.drawCenteredString(font, title, width / 2, 14, 0xFFFFFF);
 
         List<ShaderOptionEntry> results = session.results();
+        if (!pendingChanges.isEmpty()) {
+            String hint = Component.translatable("screen.irisconfigsearch.pending_hint", pendingChanges.size()).getString();
+            graphics.drawCenteredString(font, font.plainSubstrByWidth(hint, width - 24), width / 2, 62, 0xFFD27A);
+        }
         int bottom = height - 42;
         int visibleRows = Math.max(0, (bottom - LIST_TOP) / ROW_HEIGHT);
         int maxOffset = Math.max(0, results.size() - visibleRows);
