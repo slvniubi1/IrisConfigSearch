@@ -25,8 +25,9 @@
   "screen.irisconfigsearch.change": "Change",
   "screen.irisconfigsearch.read_only": "Read only",
   "screen.irisconfigsearch.apply_error": "Could not apply: %s",
-  "screen.irisconfigsearch.staged": "Staged",
-  "screen.irisconfigsearch.apply_count": "Apply & Save (%s)",
-  "screen.irisconfigsearch.discard": "Discard changes",
-  "screen.irisconfigsearch.applied": "Changes submitted; reloading shaders."
+  "screen.irisconfigsearch.staged": "Pending save",
+  "screen.irisconfigsearch.confirm_save_count": "Confirm & Apply (%s)",
+  "screen.irisconfigsearch.discard": "Discard staged",
+  "screen.irisconfigsearch.applied": "Saved and applied. Shader changes are taking effect.",
+  "screen.irisconfigsearch.pending_hint": "%s staged change(s); not active until you confirm save and apply below."
 }
