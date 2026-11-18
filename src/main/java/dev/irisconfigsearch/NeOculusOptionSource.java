@@ -20,22 +20,28 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
         try {
             Class<?> iris = Class.forName(IRIS_CLASS);
             Object pack = unwrapOptional(invoke(iris, null, "getCurrentPack"));
-            if (pack == null) return List.of();
+            if (pack == null) {
+                return List.of();
+            }
 
             Object packOptions = invoke(pack.getClass(), pack, "getShaderPackOptions");
             Object optionSet = invoke(packOptions.getClass(), packOptions, "getOptionSet");
             Object optionValues = invoke(packOptions.getClass(), packOptions, "getOptionValues");
 
             List<ShaderOptionEntry> entries = new ArrayList<>();
-            appendBooleanOptions(entries, invoke(optionSet.getClass(), optionSet, "getBooleanOptions"), optionValues);
-            appendStringOptions(entries, invoke(optionSet.getClass(), optionSet, "getStringOptions"), optionValues);
+            appendBooleanOptions(entries, invoke(optionSet.getClass(), optionSet, "getBooleanOptions"),
+                    optionValues);
+            appendStringOptions(entries, invoke(optionSet.getClass(), optionSet, "getStringOptions"),
+                    optionValues);
+
             entries.sort(Comparator.comparing(ShaderOptionEntry::name, String.CASE_INSENSITIVE_ORDER)
                     .thenComparing(ShaderOptionEntry::name));
             return List.copyOf(entries);
         } catch (ClassNotFoundException absent) {
             return List.of();
         } catch (ReflectiveOperationException | ClassCastException error) {
-            throw new IllegalStateException("Unable to read parsed shader options from this NeOculus version", error);
+            throw new IllegalStateException(
+                    "Unable to read parsed shader options from this NeOculus version", error);
         }
     }
 
@@ -47,20 +53,32 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
         try {
             Class<?> iris = Class.forName(IRIS_CLASS);
             Object pack = unwrapOptional(invoke(iris, null, "getCurrentPack"));
-            if (pack == null) throw new IllegalStateException("No active shader pack");
+            if (pack == null) {
+                throw new IllegalStateException("No active shader pack");
+            }
             Object packOptions = invoke(pack.getClass(), pack, "getShaderPackOptions");
             Object optionSet = invoke(packOptions.getClass(), packOptions, "getOptionSet");
             boolean isBoolean = "boolean".equals(entry.type());
             String mapMethod = isBoolean ? "getBooleanOptions" : "getStringOptions";
             Object raw = ((Map<?, ?>) invoke(optionSet.getClass(), optionSet, mapMethod)).get(entry.name());
-            if (raw == null) throw new IllegalArgumentException("Unknown shader option: " + entry.name());
+            if (raw == null) {
+                throw new IllegalArgumentException("Unknown shader option: " + entry.name());
+            }
             Object option = invoke(raw.getClass(), raw, "getOption");
-            if (isBoolean) return Boolean.toString(!Boolean.parseBoolean(currentValue));
-            if (!"string".equals(entry.type())) throw new IllegalArgumentException("Read-only option");
+            if (isBoolean) {
+                return Boolean.toString(!Boolean.parseBoolean(currentValue));
+            }
+            if (!"string".equals(entry.type())) {
+                throw new IllegalArgumentException("Read-only option");
+            }
             Object allowedRaw = invoke(option.getClass(), option, "getAllowedValues");
             List<String> allowed = new ArrayList<>();
-            for (Object value : (Iterable<?>) allowedRaw) allowed.add(value.toString());
-            if (allowed.isEmpty()) throw new IllegalStateException("No allowed values for " + entry.name());
+            for (Object value : (Iterable<?>) allowedRaw) {
+                allowed.add(value.toString());
+            }
+            if (allowed.isEmpty()) {
+                throw new IllegalStateException("No allowed values for " + entry.name());
+            }
             int index = allowed.indexOf(currentValue);
             return allowed.get((index + 1 + allowed.size()) % allowed.size());
         } catch (ReflectiveOperationException error) {
@@ -69,7 +87,9 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
     }
 
     public void applyChanges(Map<String, String> changes) {
-        if (changes.isEmpty()) return;
+        if (changes.isEmpty()) {
+            return;
+        }
         try {
             Class<?> iris = Class.forName(IRIS_CLASS);
             @SuppressWarnings("unchecked")
@@ -81,7 +101,8 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
         }
     }
 
-    private static void appendBooleanOptions(List<ShaderOptionEntry> entries, Object rawMap, Object optionValues)
+    private static void appendBooleanOptions(
+            List<ShaderOptionEntry> entries, Object rawMap, Object optionValues)
             throws ReflectiveOperationException {
         for (Object raw : ((Map<?, ?>) rawMap).values()) {
             Object option = invoke(raw.getClass(), raw, "getOption");
@@ -90,12 +111,15 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
             boolean defaultValue = (boolean) invoke(option.getClass(), option, "getDefaultValue");
             Object current = invoke(optionValues.getClass(), optionValues, "getBooleanValue", name);
             boolean currentValue = (boolean) invoke(current.getClass(), current, "orElse", defaultValue);
-            entries.add(new ShaderOptionEntry(name, description, defaultValue, "NeOculus parsed options",
-                    Optional.of(Boolean.toString(currentValue)), "boolean", Optional.of(Boolean.toString(defaultValue))));
+
+            entries.add(new ShaderOptionEntry(name, description, defaultValue,
+                    "NeOculus parsed options", Optional.of(Boolean.toString(currentValue)),
+                    "boolean", Optional.of(Boolean.toString(defaultValue))));
         }
     }
 
-    private static void appendStringOptions(List<ShaderOptionEntry> entries, Object rawMap, Object optionValues)
+    private static void appendStringOptions(
+            List<ShaderOptionEntry> entries, Object rawMap, Object optionValues)
             throws ReflectiveOperationException {
         for (Object raw : ((Map<?, ?>) rawMap).values()) {
             Object option = invoke(raw.getClass(), raw, "getOption");
@@ -103,9 +127,9 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
             String description = optionalString(invoke(option.getClass(), option, "getComment"));
             String defaultValue = (String) invoke(option.getClass(), option, "getDefaultValue");
             Object current = unwrapOptional(invoke(optionValues.getClass(), optionValues, "getStringValue", name));
-            entries.add(new ShaderOptionEntry(name, description, true, "NeOculus parsed options",
-                    Optional.of(current == null ? defaultValue : current.toString()), "string",
-                    Optional.of(defaultValue)));
+            entries.add(new ShaderOptionEntry(name, description, true,
+                    "NeOculus parsed options", Optional.of(current == null ? defaultValue : current.toString()),
+                    "string", Optional.of(defaultValue)));
         }
     }
 
@@ -115,11 +139,16 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
     }
 
     private static Object unwrapOptional(Object value) {
-        return value instanceof Optional<?> optional ? optional.orElse(null) : value;
+        if (value instanceof Optional<?> optional) {
+            return optional.orElse(null);
+        }
+        return value;
     }
 
     private static Class<?> wrapPrimitive(Class<?> type) {
-        if (!type.isPrimitive()) return type;
+        if (!type.isPrimitive()) {
+            return type;
+        }
         if (type == boolean.class) return Boolean.class;
         if (type == byte.class) return Byte.class;
         if (type == short.class) return Short.class;
@@ -135,24 +164,38 @@ public final class NeOculusOptionSource implements ShaderOptionSource {
             throws ReflectiveOperationException {
         Method match = null;
         for (Method method : owner.getMethods()) {
-            if (!method.getName().equals(name) || method.getParameterCount() != arguments.length) continue;
-            Class<?>[] parameters = method.getParameterTypes();
+            if (!method.getName().equals(name) || method.getParameterCount() != arguments.length) {
+                continue;
+            }
+            Class<?>[] parameterTypes = method.getParameterTypes();
             boolean compatible = true;
-            for (int i = 0; i < parameters.length; i++) {
-                if (arguments[i] == null ? parameters[i].isPrimitive()
-                        : !wrapPrimitive(parameters[i]).isInstance(arguments[i])) {
+            for (int i = 0; i < parameterTypes.length; i++) {
+                if (arguments[i] == null) {
+                    if (parameterTypes[i].isPrimitive()) {
+                        compatible = false;
+                        break;
+                    }
+                } else if (!wrapPrimitive(parameterTypes[i]).isInstance(arguments[i])) {
                     compatible = false;
                     break;
                 }
             }
-            if (compatible) { match = method; break; }
+            if (compatible) {
+                match = method;
+                break;
+            }
         }
-        if (match == null) throw new NoSuchMethodException(owner.getName() + "." + name);
+        if (match == null) {
+            throw new NoSuchMethodException(owner.getName() + "." + name
+                    + " with " + arguments.length + " compatible argument(s)");
+        }
         try {
             return match.invoke(target, arguments);
         } catch (InvocationTargetException error) {
             Throwable cause = error.getCause();
-            if (cause instanceof RuntimeException runtime) throw runtime;
+            if (cause instanceof RuntimeException runtime) {
+                throw runtime;
+            }
             throw error;
         }
     }
