@@ -21,5 +21,13 @@
   "screen.irisconfigsearch.type": "%s",
   "screen.irisconfigsearch.default": "默认值：%s",
   "screen.irisconfigsearch.current": "当前值：%s",
-  "screen.irisconfigsearch.open_from_iris": "搜索着色器选项"
+  "screen.irisconfigsearch.open_from_iris": "搜索着色器选项",
+  "screen.irisconfigsearch.change": "修改",
+  "screen.irisconfigsearch.read_only": "只读",
+  "screen.irisconfigsearch.apply_error": "修改失败：%s",
+  "screen.irisconfigsearch.staged": "待保存",
+  "screen.irisconfigsearch.confirm_save_count": "确认保存并生效（%s）",
+  "screen.irisconfigsearch.discard": "撤销暂存",
+  "screen.irisconfigsearch.applied": "已确认保存，修改正在生效。",
+  "screen.irisconfigsearch.pending_hint": "已暂存 %s 项，尚未生效；点击底部按钮统一保存并应用。"
 }
